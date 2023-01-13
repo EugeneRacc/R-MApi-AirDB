@@ -1,9 +1,9 @@
 using AutoMapper;
-using Newtonsoft.Json.Linq;
 using RickAndMortyBLL.Exceptions;
 using RickAndMortyBLL.Interfaces;
 using RickAndMortyBLL.Models;
 using RickAndMortyBLL.Models.RickAndMortyResponseModels.Character;
+using RickAndMortyBLL.Models.RickAndMortyResponseModels.Episode;
 
 namespace RickAndMortyBLL.Services;
 
@@ -17,8 +17,7 @@ public class PersonService : IPersonService
     }
     public async Task<IEnumerable<PersonModel>> GetPersonDetails(string name)
     {
-        var data = await HelperService.SendRequest($"https://rickandmortyapi.com/api/character?name={name}");
-        var resultObject = HelperService.ConvertJsonToObject<CharacterModelResponse>(data);
+        var resultObject = await HelperService.RequestWithObject<CharacterModelResponse>($"https://rickandmortyapi.com/api/character?name={name}");
         if (resultObject == null)
             throw new RickAndMortyException("Characters with such name doesn't exist");
         var resultDetails = new List<PersonModel>();
@@ -34,8 +33,7 @@ public class PersonService : IPersonService
                 resultDetails.Add(mappedPM);
                 continue;
             }
-            var originJson = await HelperService.SendRequest(character.OriginUrls.Url);
-            var originModel = HelperService.ConvertJsonToObject<OriginModel>(originJson);
+            var originModel = await HelperService.RequestWithObject<OriginModel>(character.OriginUrls.Url);
             var mappedPMWO = _mapper.Map<PersonModel>(character);
             mappedPMWO.Origin = _mapper.Map<OriginModel>(originModel);
             resultDetails.Add(mappedPMWO);
@@ -45,10 +43,17 @@ public class PersonService : IPersonService
 
     public async Task<bool> CheckIfPersonInEpisode(PersonInEpisodeModel personInEpisodeModel)
     {
-        var data = await HelperService.SendRequest(
+        var personModel = await HelperService.RequestWithObject<CharacterModelResponse>(
             $"https://rickandmortyapi.com/api/character?name={personInEpisodeModel.PersonName}");
-        dynamic rsu = JObject.Parse(data);
-        Console.WriteLine(rsu.results[0].id);
-        return true;
+        var episodeModels = await HelperService.RequestWithObject<EpisodeModelResponse>(
+                $"https://rickandmortyapi.com/api/episode?name={personInEpisodeModel.EpisodeName}");
+        var possiblePersonIds = personModel.Results.Select(x => x.Id);
+        var charactersIdsInEpisode = episodeModels.Results
+            .SelectMany(x => x.Characters)
+            .SelectMany(character => character.Split("/").TakeLast(1))
+            .Select(id => int.TryParse(id, out var intId) ? intId : -1)
+            .Where(id => id >= 0);
+        var result = charactersIdsInEpisode.Intersect(possiblePersonIds).Any();
+        return result;
     }
 }
