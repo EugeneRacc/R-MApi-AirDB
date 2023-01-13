@@ -13,6 +13,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IPersonService, PersonService>();
+builder.Services.AddResponseCaching();
 var mapperConfig = new MapperConfiguration(mc =>
 {
     mc.AddProfile(new AutoMapperProfile());
@@ -33,6 +34,8 @@ app.UseCustomExceptionHandler();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseResponseCaching();
 
 app.MapControllers();
 

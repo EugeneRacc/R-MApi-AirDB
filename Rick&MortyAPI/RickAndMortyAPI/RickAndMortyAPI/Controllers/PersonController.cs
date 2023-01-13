@@ -5,6 +5,9 @@ using RickAndMortyBLL.Models;
 namespace RickAndMortyAPI.Controllers;
 [ApiController]
 [Route("api/v1")]
+[ResponseCache(Duration = 60, 
+    Location = ResponseCacheLocation.Any,
+    VaryByQueryKeys = new[] {"name"})]
 public class PersonController : ControllerBase
 {
     private readonly IPersonService _personService;
