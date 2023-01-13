@@ -10,4 +10,9 @@
       <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Models\RickAndMortyResponseModels\Episode" />
+      <Folder Include="Models\RickAndMortyResponseModels\Location" />
+    </ItemGroup>
+
 </Project>

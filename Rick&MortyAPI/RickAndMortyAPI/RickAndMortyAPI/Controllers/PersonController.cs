@@ -17,8 +17,7 @@ public class PersonController : ControllerBase
     [Route("check-person")]
     public async Task<IActionResult> CheckPerson([FromBody] PersonInEpisodeModel personInEpisodeModel)
     {
-        
-        return Ok("Hello world");
+        return Ok(await _personService.CheckIfPersonInEpisode(personInEpisodeModel));
     } 
     
     [HttpGet]
