@@ -1,4 +1,5 @@
 using AutoMapper;
+using RickAndMortyAPI.Middleware;
 using RickAndMortyBLL.Interfaces;
 using RickAndMortyBLL.Mapper;
 using RickAndMortyBLL.Services;
@@ -26,6 +27,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCustomExceptionHandler();
 
 app.UseHttpsRedirection();
 
