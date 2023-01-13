@@ -3,8 +3,9 @@ using RickAndMortyBLL.Interfaces;
 using RickAndMortyBLL.Models;
 
 namespace RickAndMortyAPI.Controllers;
+[ApiVersion("1")]
 [ApiController]
-[Route("api/v1")]
+[Route("api/v{version:apiVersion}")]
 [ResponseCache(Duration = 60, 
     Location = ResponseCacheLocation.Any,
     VaryByQueryKeys = new[] {"name"})]
