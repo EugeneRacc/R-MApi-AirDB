@@ -5,7 +5,11 @@ namespace RickAndMortyBLL;
 
 public static class HelperService
 {
-    public static async Task<string> SendRequest(string url)
+    public const string characterUrl = "https://rickandmortyapi.com/api/character";
+    public const string episodeUrl = "https://rickandmortyapi.com/api/episode";
+    public const string locationUrl = "https://rickandmortyapi.com/api/location";
+
+    private static async Task<string> SendRequest(string url)
     {
         HttpResponseMessage responseMessage;
         using (var http = new HttpClient())
@@ -19,7 +23,7 @@ public static class HelperService
         return await responseMessage.Content.ReadAsStringAsync();
     }
     
-    public static T? ConvertJsonToObject<T>(string json)
+    private static T? ConvertJsonToObject<T>(string json)
     {
         return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json);
     }

@@ -17,7 +17,7 @@ public class PersonService : IPersonService
     }
     public async Task<IEnumerable<PersonModel>> GetPersonDetails(string name)
     {
-        var resultObject = await HelperService.RequestWithObject<CharacterModelResponse>($"https://rickandmortyapi.com/api/character?name={name}");
+        var resultObject = await HelperService.RequestWithObject<CharacterModelResponse>($"{HelperService.characterUrl}?name={name}");
         if (resultObject == null)
             throw new RickAndMortyException("Characters with such name doesn't exist");
         var resultDetails = new List<PersonModel>();
@@ -44,9 +44,9 @@ public class PersonService : IPersonService
     public async Task<bool> CheckIfPersonInEpisode(PersonInEpisodeModel personInEpisodeModel)
     {
         var personModel = await HelperService.RequestWithObject<CharacterModelResponse>(
-            $"https://rickandmortyapi.com/api/character?name={personInEpisodeModel.PersonName}");
+            $"{HelperService.characterUrl}?name={personInEpisodeModel.PersonName}");
         var episodeModels = await HelperService.RequestWithObject<EpisodeModelResponse>(
-                $"https://rickandmortyapi.com/api/episode?name={personInEpisodeModel.EpisodeName}");
+                $"{HelperService.episodeUrl}?name={personInEpisodeModel.EpisodeName}");
         var possiblePersonIds = personModel.Results.Select(x => x.Id);
         var charactersIdsInEpisode = episodeModels.Results
             .SelectMany(x => x.Characters)
