@@ -19,6 +19,9 @@ public class PersonController : ControllerBase
 
     [HttpPost]
     [Route("check-person")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> CheckPerson([FromBody] PersonInEpisodeModel personInEpisodeModel)
     {
         return Ok(await _personService.CheckIfPersonInEpisode(personInEpisodeModel));
@@ -26,6 +29,9 @@ public class PersonController : ControllerBase
     
     [HttpGet]
     [Route("person")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetPersonDetails([FromQuery] string name)
     {
         return Ok(await _personService.GetPersonDetails(name));
