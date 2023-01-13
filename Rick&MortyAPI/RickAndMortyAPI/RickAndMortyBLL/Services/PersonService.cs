@@ -23,20 +23,9 @@ public class PersonService : IPersonService
         var resultDetails = new List<PersonModel>();
         foreach (var character in resultObject.Results)
         {
-            if (string.IsNullOrEmpty(character.OriginUrls.Url))
-            {
-                var mappedPM = _mapper.Map<PersonModel>(character);
-                mappedPM.Origin = new OriginModel()
-                {
-                    Name = character.OriginUrls.Name
-                };
-                resultDetails.Add(mappedPM);
-                continue;
-            }
-            var originModel = await HelperService.RequestWithObject<OriginModel>(character.OriginUrls.Url);
-            var mappedPMWO = _mapper.Map<PersonModel>(character);
-            mappedPMWO.Origin = _mapper.Map<OriginModel>(originModel);
-            resultDetails.Add(mappedPMWO);
+            var mappedCharacter = _mapper.Map<PersonModel>(character);
+            mappedCharacter.Origin = await GetOrigin(character.OriginUrls);
+            resultDetails.Add(mappedCharacter);
         }
         return resultDetails; 
     }
@@ -47,13 +36,34 @@ public class PersonService : IPersonService
             $"{HelperService.characterUrl}?name={personInEpisodeModel.PersonName}");
         var episodeModels = await HelperService.RequestWithObject<EpisodeModelResponse>(
                 $"{HelperService.episodeUrl}?name={personInEpisodeModel.EpisodeName}");
+        if (personModel == null || episodeModels == null)
+            throw new RickAndMortyException(
+                "No such episode or character. Try to input correct values or return later");
         var possiblePersonIds = personModel.Results.Select(x => x.Id);
         var charactersIdsInEpisode = episodeModels.Results
-            .SelectMany(x => x.Characters)
+            .SelectMany(episode => episode.Characters)
             .SelectMany(character => character.Split("/").TakeLast(1))
             .Select(id => int.TryParse(id, out var intId) ? intId : -1)
             .Where(id => id >= 0);
         var result = charactersIdsInEpisode.Intersect(possiblePersonIds).Any();
         return result;
+    }
+
+    private async Task<OriginModel> GetOrigin(OriginUrlsModel originUrlsModel)
+    {
+        if (string.IsNullOrEmpty(originUrlsModel.Url))
+        {
+            return new OriginModel()
+            {
+                Name = originUrlsModel.Name
+            };
+        }
+
+        return await HelperService.RequestWithObject<OriginModel>(originUrlsModel.Url)
+            ??
+            new OriginModel()
+            {
+                Name = originUrlsModel.Name
+            };
     }
 }
