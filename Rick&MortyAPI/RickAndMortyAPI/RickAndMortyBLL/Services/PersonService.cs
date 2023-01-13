@@ -1,3 +1,4 @@
+using AutoMapper;
 using Newtonsoft.Json.Linq;
 using RickAndMortyBLL.Exceptions;
 using RickAndMortyBLL.Interfaces;
@@ -8,30 +9,38 @@ namespace RickAndMortyBLL.Services;
 
 public class PersonService : IPersonService
 {
-    public async Task<PersonModel> GetPersonDetails(string name)
+    private readonly IMapper _mapper;
+
+    public PersonService(IMapper mapper)
+    {
+        _mapper = mapper;
+    }
+    public async Task<IEnumerable<PersonModel>> GetPersonDetails(string name)
     {
         var data = await HelperService.SendRequest($"https://rickandmortyapi.com/api/character?name={name}");
         var resultObject = HelperService.ConvertJsonToObject<CharacterModelResponse>(data);
         if (resultObject == null)
             throw new RickAndMortyException("Characters with such name doesn't exist");
-        var firstCharacter = resultObject.Results.ToList()[0];
-        var originJson = await HelperService.SendRequest(firstCharacter.Origin.Url);
-        var originModel = HelperService.ConvertJsonToObject<OriginModel>(originJson);
-        var characterModel = new PersonModel()
+        var resultDetails = new List<PersonModel>();
+        foreach (var character in resultObject.Results)
         {
-            Name = firstCharacter.Name,
-            Gender = firstCharacter.Gender,
-            Origin = new OriginModel()
+            if (string.IsNullOrEmpty(character.OriginUrls.Url))
             {
-                Name = originModel.Name,
-                Dimension = originModel.Dimension,
-                Type = originModel.Type
-            },
-            Species = firstCharacter.Species,
-            Status = firstCharacter.Status,
-            Type = firstCharacter.Type
-        };
-        return characterModel;
+                var mappedPM = _mapper.Map<PersonModel>(character);
+                mappedPM.Origin = new OriginModel()
+                {
+                    Name = character.OriginUrls.Name
+                };
+                resultDetails.Add(mappedPM);
+                continue;
+            }
+            var originJson = await HelperService.SendRequest(character.OriginUrls.Url);
+            var originModel = HelperService.ConvertJsonToObject<OriginModel>(originJson);
+            var mappedPMWO = _mapper.Map<PersonModel>(character);
+            mappedPMWO.Origin = _mapper.Map<OriginModel>(originModel);
+            resultDetails.Add(mappedPMWO);
+        }
+        return resultDetails; 
     }
 
     public async Task<bool> CheckIfPersonInEpisode(PersonInEpisodeModel personInEpisodeModel)

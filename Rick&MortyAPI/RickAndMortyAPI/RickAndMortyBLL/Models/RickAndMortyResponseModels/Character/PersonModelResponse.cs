@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace RickAndMortyBLL.Models.RickAndMortyResponseModels.Character;
 
 public class PersonModelResponse
@@ -8,7 +10,8 @@ public class PersonModelResponse
     public string Species { get; set; }
     public string Type { get; set; }
     public string Gender { get; set; }
-    public OriginUrlsModel Origin { get; set; }
+    [JsonProperty("origin")]
+    public OriginUrlsModel OriginUrls { get; set; }
     public LocationUrlsModel Location { get; set; }
     public string Image { get; set; }
     public List<string> Episode { get; set; }
