@@ -12,7 +12,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Models\RickAndMortyResponseModels\Episode" />
       <Folder Include="Models\RickAndMortyResponseModels\Location" />
     </ItemGroup>
 
