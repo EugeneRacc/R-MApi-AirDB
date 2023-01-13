@@ -1,4 +1,3 @@
-using Newtonsoft.Json.Linq;
 using RickAndMortyBLL.Models;
 
 namespace RickAndMortyBLL.Interfaces;

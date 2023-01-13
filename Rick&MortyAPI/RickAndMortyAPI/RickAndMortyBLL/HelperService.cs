@@ -16,10 +16,8 @@ public static class HelperService
         {
             responseMessage = await http.GetAsync(url);
         }
-
         if (responseMessage.StatusCode == HttpStatusCode.NotFound)
-            throw new RickAndMortyException("Characters with such name doesn't exist");
-
+            throw new RickAndMortyException("Characters or episode with such name doesn't exist");
         return await responseMessage.Content.ReadAsStringAsync();
     }
     
