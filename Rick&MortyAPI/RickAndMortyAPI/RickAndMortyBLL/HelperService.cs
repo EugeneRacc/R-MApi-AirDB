@@ -23,4 +23,10 @@ public static class HelperService
     {
         return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json);
     }
+
+    public static async Task<T?> RequestWithObject<T>(string url)
+    {
+        var json = await SendRequest(url);
+        return ConvertJsonToObject<T>(json);
+    }
 }
